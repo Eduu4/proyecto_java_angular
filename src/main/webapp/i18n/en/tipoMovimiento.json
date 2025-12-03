@@ -1,0 +1,9 @@
+{
+  "angularv3App": {
+    "TipoMovimiento": {
+      "null": "",
+      "GASTO": "GASTO",
+      "INGRESO": "INGRESO"
+    }
+  }
+}

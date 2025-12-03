@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (movimiento(); as movimientoRef) {
+      <div>
+        <h2 data-cy="movimientoDetailsHeading"><span jhiTranslate="angularv3App.movimiento.detail.title">Movimiento</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ movimientoRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.tipo">Tipo</span></dt>
+          <dd>
+            <span [jhiTranslate]="'angularv3App.TipoMovimiento.' + (movimientoRef.tipo ?? 'null')">{{
+              { null: '', GASTO: 'GASTO', INGRESO: 'INGRESO' }[movimientoRef.tipo ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.monto">Monto</span></dt>
+          <dd>
+            <span>{{ movimientoRef.monto }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.fechaMovimiento">Fecha Movimiento</span></dt>
+          <dd>
+            <span>{{ movimientoRef.fechaMovimiento | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.fechaRegistro">Fecha Registro</span></dt>
+          <dd>
+            <span>{{ movimientoRef.fechaRegistro | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.fechaActualizacion">Fecha Actualizacion</span></dt>
+          <dd>
+            <span>{{ movimientoRef.fechaActualizacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.descripcion">Descripcion</span></dt>
+          <dd>
+            <span>{{ movimientoRef.descripcion }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.usuario">Usuario</span></dt>
+          <dd>
+            <span>{{ movimientoRef.usuario?.login }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.categoria">Categoria</span></dt>
+          <dd>
+            @if (movimiento()!.categoria) {
+              <div>
+                <a [routerLink]="['/categoria', movimiento()!.categoria?.id, 'view']">{{ movimientoRef.categoria?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="angularv3App.movimiento.cuenta">Cuenta</span></dt>
+          <dd>
+            @if (movimiento()!.cuenta) {
+              <div>
+                <a [routerLink]="['/cuenta', movimiento()!.cuenta?.id, 'view']">{{ movimientoRef.cuenta?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/movimiento', movimientoRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

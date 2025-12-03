@@ -1,0 +1,9 @@
+{
+  "angularv3App": {
+    "TipoCategoria": {
+      "null": "",
+      "GASTO": "GASTO",
+      "INGRESO": "INGRESO"
+    }
+  }
+}

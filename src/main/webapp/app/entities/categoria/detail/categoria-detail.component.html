@@ -1,0 +1,48 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (categoria(); as categoriaRef) {
+      <div>
+        <h2 data-cy="categoriaDetailsHeading"><span jhiTranslate="angularv3App.categoria.detail.title">Categoria</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ categoriaRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.categoria.nombre">Nombre</span></dt>
+          <dd>
+            <span>{{ categoriaRef.nombre }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.categoria.tipo">Tipo</span></dt>
+          <dd>
+            <span [jhiTranslate]="'angularv3App.TipoCategoria.' + (categoriaRef.tipo ?? 'null')">{{
+              { null: '', GASTO: 'GASTO', INGRESO: 'INGRESO' }[categoriaRef.tipo ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.categoria.color">Color</span></dt>
+          <dd>
+            <span>{{ categoriaRef.color }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.categoria.usuario">Usuario</span></dt>
+          <dd>
+            <span>{{ categoriaRef.usuario?.login }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/categoria', categoriaRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,160 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-presupuesto-heading"
+        data-cy="PresupuestoCreateUpdateHeading"
+        jhiTranslate="angularv3App.presupuesto.home.createOrEditLabel"
+      >
+        Create or edit a Presupuesto
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="angularv3App.presupuesto.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let montoRef = editForm.get('monto')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_monto" jhiTranslate="angularv3App.presupuesto.monto">Monto</label>
+          <input type="number" class="form-control" name="monto" id="field_monto" data-cy="monto" formControlName="monto" />
+          @if (montoRef.invalid && (montoRef.dirty || montoRef.touched)) {
+            <div>
+              @if (editForm.get('monto')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+              <small class="form-text text-danger" [hidden]="!editForm.get('monto')?.errors?.number" jhiTranslate="entity.validation.number"
+                >This field should be a number.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let periodoRef = editForm.get('periodo')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_periodo" jhiTranslate="angularv3App.presupuesto.periodo">Periodo</label>
+          <select class="form-control" name="periodo" formControlName="periodo" id="field_periodo" data-cy="periodo">
+            <option [ngValue]="null">{{ 'angularv3App.PeriodoPresupuesto.null' | translate }}</option>
+            @for (periodoPresupuesto of periodoPresupuestoValues; track $index) {
+              <option [value]="periodoPresupuesto">{{ 'angularv3App.PeriodoPresupuesto.' + periodoPresupuesto | translate }}</option>
+            }
+          </select>
+          @if (periodoRef.invalid && (periodoRef.dirty || periodoRef.touched)) {
+            <div>
+              @if (editForm.get('periodo')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let fechaInicioRef = editForm.get('fechaInicio')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaInicio" jhiTranslate="angularv3App.presupuesto.fechaInicio">Fecha Inicio</label>
+          <div class="input-group">
+            <input
+              id="field_fechaInicio"
+              data-cy="fechaInicio"
+              type="text"
+              class="form-control"
+              name="fechaInicio"
+              ngbDatepicker
+              #fechaInicioDp="ngbDatepicker"
+              formControlName="fechaInicio"
+            />
+            <button type="button" class="btn btn-secondary" (click)="fechaInicioDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+          @if (fechaInicioRef.invalid && (fechaInicioRef.dirty || fechaInicioRef.touched)) {
+            <div>
+              @if (editForm.get('fechaInicio')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let fechaFinRef = editForm.get('fechaFin')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaFin" jhiTranslate="angularv3App.presupuesto.fechaFin">Fecha Fin</label>
+          <div class="input-group">
+            <input
+              id="field_fechaFin"
+              data-cy="fechaFin"
+              type="text"
+              class="form-control"
+              name="fechaFin"
+              ngbDatepicker
+              #fechaFinDp="ngbDatepicker"
+              formControlName="fechaFin"
+            />
+            <button type="button" class="btn btn-secondary" (click)="fechaFinDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
+          </div>
+          @if (fechaFinRef.invalid && (fechaFinRef.dirty || fechaFinRef.touched)) {
+            <div>
+              @if (editForm.get('fechaFin')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuario" jhiTranslate="angularv3App.presupuesto.usuario">Usuario</label>
+          <select
+            class="form-control"
+            id="field_usuario"
+            data-cy="usuario"
+            name="usuario"
+            formControlName="usuario"
+            [compareWith]="compareUser"
+          >
+            <option [ngValue]="null"></option>
+            @for (userOption of usersSharedCollection; track $index) {
+              <option [ngValue]="userOption">{{ userOption.login }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_categoria" jhiTranslate="angularv3App.presupuesto.categoria">Categoria</label>
+          <select
+            class="form-control"
+            id="field_categoria"
+            data-cy="categoria"
+            name="categoria"
+            formControlName="categoria"
+            [compareWith]="compareCategoria"
+          >
+            <option [ngValue]="null"></option>
+            @for (categoriaOption of categoriasSharedCollection; track $index) {
+              <option [ngValue]="categoriaOption">{{ categoriaOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
