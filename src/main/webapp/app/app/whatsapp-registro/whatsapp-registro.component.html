@@ -1,0 +1,53 @@
+<div class="whatsapp-registro-container">
+  <div class="header-section">
+    <h1><fa-icon [icon]="faPhone"></fa-icon> WhatsApp - Registra tus Movimientos</h1>
+  </div>
+
+  <div class="action-section">
+    <button class="btn btn-primary" (click)="abrirWhatsApp()">Abrir WhatsApp</button>
+  </div>
+
+  <div class="tabs-section">
+    <button [class.active]="activeTab === 'instrucciones'" (click)="cambiarTab('instrucciones')">Instrucciones</button>
+    <button [class.active]="activeTab === 'formatos'" (click)="cambiarTab('formatos')">Formatos</button>
+    <button [class.active]="activeTab === 'historial'" (click)="cambiarTab('historial')">Historial</button>
+    <button [class.active]="activeTab === 'config'" (click)="cambiarTab('config')">Configuraci�n</button>
+  </div>
+
+  <div *ngIf="activeTab === 'instrucciones'" class="tab-content">
+    <h2>�C�mo usar?</h2>
+    <p>Env�a un mensaje siguiendo estos formatos:</p>
+    <ul>
+      <li><code>GASTO 25.50 Alimentaci�n</code></li>
+      <li><code>INGRESO 500 Salario</code></li>
+    </ul>
+  </div>
+
+  <div *ngIf="activeTab === 'formatos'" class="tab-content">
+    <h2>Formatos Disponibles</h2>
+    <div *ngFor="let formato of formatosMensajes" class="formato-item">
+      <strong>{{ formato.categoria }}</strong>
+      <p>{{ formato.descripcion }}</p>
+      <code>{{ formato.ejemplo }}</code>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'historial'" class="tab-content">
+    <h2>Historial</h2>
+    <p>�ltimos {{ historialRegistros.length }} movimientos:</p>
+    <div *ngFor="let registro of historialRegistros" class="historial-item">
+      <div>{{ registro.fecha }} - {{ registro.tipo }} {{ registro.monto | currency }}</div>
+      <div>{{ registro.estado }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'config'" class="tab-content">
+    <h2>Configuraci�n</h2>
+    <div class="stat-card">
+      <h3>Total Gastos: {{ estadisticas.gastosRegistrados | currency }}</h3>
+    </div>
+    <div class="stat-card">
+      <h3>Total Ingresos: {{ estadisticas.ingresosProcesados | currency }}</h3>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+{
+  "angularv3App": {
+    "presupuesto": {
+      "home": {
+        "title": "Presupuestos",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Presupuesto",
+        "createOrEditLabel": "Create or edit a Presupuesto",
+        "notFound": "No Presupuestos found"
+      },
+      "created": "A new Presupuesto is created with identifier {{ param }}",
+      "updated": "A Presupuesto is updated with identifier {{ param }}",
+      "deleted": "A Presupuesto is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Presupuesto {{ id }}?"
+      },
+      "detail": {
+        "title": "Presupuesto"
+      },
+      "id": "ID",
+      "monto": "Monto",
+      "periodo": "Periodo",
+      "fechaInicio": "Fecha Inicio",
+      "fechaFin": "Fecha Fin",
+      "usuario": "Usuario",
+      "categoria": "Categoria"
+    }
+  }
+}

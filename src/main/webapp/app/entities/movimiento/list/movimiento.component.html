@@ -1,0 +1,161 @@
+<div>
+  <h2 id="page-heading" data-cy="MovimientoHeading">
+    <span jhiTranslate="angularv3App.movimiento.home.title">Movimientos</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span jhiTranslate="angularv3App.movimiento.home.refreshListLabel">Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-movimiento"
+        [routerLink]="['/movimiento/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="angularv3App.movimiento.home.createLabel">Create a new Movimiento</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  @if (movimientos().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span jhiTranslate="angularv3App.movimiento.home.notFound">No Movimientos found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="tipo">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.tipo">Tipo</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="monto">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.monto">Monto</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaMovimiento">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.fechaMovimiento">Fecha Movimiento</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaRegistro">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.fechaRegistro">Fecha Registro</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaActualizacion">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.fechaActualizacion">Fecha Actualizacion</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="descripcion">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.descripcion">Descripcion</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuario.login">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.usuario">Usuario</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="categoria.id">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.categoria">Categoria</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="cuenta.id">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.movimiento.cuenta">Cuenta</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (movimiento of movimientos(); track trackId(movimiento)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/movimiento', movimiento.id, 'view']">{{ movimiento.id }}</a>
+              </td>
+              <td [jhiTranslate]="'angularv3App.TipoMovimiento.' + (movimiento.tipo ?? 'null')">
+                {{ { null: '', GASTO: 'GASTO', INGRESO: 'INGRESO' }[movimiento.tipo ?? 'null'] }}
+              </td>
+              <td>{{ movimiento.monto }}</td>
+              <td>{{ movimiento.fechaMovimiento | formatMediumDatetime }}</td>
+              <td>{{ movimiento.fechaRegistro | formatMediumDatetime }}</td>
+              <td>{{ movimiento.fechaActualizacion | formatMediumDatetime }}</td>
+              <td>{{ movimiento.descripcion }}</td>
+              <td>
+                {{ movimiento.usuario?.login }}
+              </td>
+              <td>
+                @if (movimiento.categoria) {
+                  <div>
+                    <a [routerLink]="['/categoria', movimiento.categoria.id, 'view']">{{ movimiento.categoria.id }}</a>
+                  </div>
+                }
+              </td>
+              <td>
+                @if (movimiento.cuenta) {
+                  <div>
+                    <a [routerLink]="['/cuenta', movimiento.cuenta.id, 'view']">{{ movimiento.cuenta.id }}</a>
+                  </div>
+                }
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a [routerLink]="['/movimiento', movimiento.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                  </a>
+
+                  <a [routerLink]="['/movimiento', movimiento.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(movimiento)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

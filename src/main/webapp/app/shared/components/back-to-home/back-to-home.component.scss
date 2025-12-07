@@ -1,0 +1,21 @@
+.back-to-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s ease;
+  font-size: 0.95rem;
+
+  &:hover {
+    color: #ddd;
+  }
+
+  fa-icon {
+    font-size: 1rem;
+  }
+
+  span {
+    margin-left: 0.25rem;
+  }
+}

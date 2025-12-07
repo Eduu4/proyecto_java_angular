@@ -1,0 +1,9 @@
+{
+  "angularv3App": {
+    "PeriodoPresupuesto": {
+      "null": "",
+      "SEMANAL": "SEMANAL",
+      "MENSUAL": "MENSUAL"
+    }
+  }
+}

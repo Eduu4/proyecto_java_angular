@@ -1,0 +1,210 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-movimiento-heading" data-cy="MovimientoCreateUpdateHeading" jhiTranslate="angularv3App.movimiento.home.createOrEditLabel">
+        Create or edit a Movimiento
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="angularv3App.movimiento.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let tipoRef = editForm.get('tipo')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_tipo" jhiTranslate="angularv3App.movimiento.tipo">Tipo</label>
+          <select class="form-control" name="tipo" formControlName="tipo" id="field_tipo" data-cy="tipo">
+            <option [ngValue]="null">{{ 'angularv3App.TipoMovimiento.null' | translate }}</option>
+            @for (tipoMovimiento of tipoMovimientoValues; track $index) {
+              <option [value]="tipoMovimiento">{{ 'angularv3App.TipoMovimiento.' + tipoMovimiento | translate }}</option>
+            }
+          </select>
+          @if (tipoRef.invalid && (tipoRef.dirty || tipoRef.touched)) {
+            <div>
+              @if (editForm.get('tipo')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let montoRef = editForm.get('monto')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_monto" jhiTranslate="angularv3App.movimiento.monto">Monto</label>
+          <input type="number" class="form-control" name="monto" id="field_monto" data-cy="monto" formControlName="monto" />
+          @if (montoRef.invalid && (montoRef.dirty || montoRef.touched)) {
+            <div>
+              @if (editForm.get('monto')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+              <small class="form-text text-danger" [hidden]="!editForm.get('monto')?.errors?.number" jhiTranslate="entity.validation.number"
+                >This field should be a number.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let fechaMovimientoRef = editForm.get('fechaMovimiento')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaMovimiento" jhiTranslate="angularv3App.movimiento.fechaMovimiento"
+            >Fecha Movimiento</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaMovimiento"
+              data-cy="fechaMovimiento"
+              type="datetime-local"
+              class="form-control"
+              name="fechaMovimiento"
+              formControlName="fechaMovimiento"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+          @if (fechaMovimientoRef.invalid && (fechaMovimientoRef.dirty || fechaMovimientoRef.touched)) {
+            <div>
+              @if (editForm.get('fechaMovimiento')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('fechaMovimiento')?.errors?.datetimelocal"
+                jhiTranslate="entity.validation.datetimelocal"
+                >This field should be a date and time.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let fechaRegistroRef = editForm.get('fechaRegistro')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaRegistro" jhiTranslate="angularv3App.movimiento.fechaRegistro">Fecha Registro</label>
+          <div class="d-flex">
+            <input
+              id="field_fechaRegistro"
+              data-cy="fechaRegistro"
+              type="datetime-local"
+              class="form-control"
+              name="fechaRegistro"
+              formControlName="fechaRegistro"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+          @if (fechaRegistroRef.invalid && (fechaRegistroRef.dirty || fechaRegistroRef.touched)) {
+            <div>
+              @if (editForm.get('fechaRegistro')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">This field is required.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('fechaRegistro')?.errors?.datetimelocal"
+                jhiTranslate="entity.validation.datetimelocal"
+                >This field should be a date and time.</small
+              >
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaActualizacion" jhiTranslate="angularv3App.movimiento.fechaActualizacion"
+            >Fecha Actualizacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaActualizacion"
+              data-cy="fechaActualizacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaActualizacion"
+              formControlName="fechaActualizacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_descripcion" jhiTranslate="angularv3App.movimiento.descripcion">Descripcion</label>
+          <input
+            type="text"
+            class="form-control"
+            name="descripcion"
+            id="field_descripcion"
+            data-cy="descripcion"
+            formControlName="descripcion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuario" jhiTranslate="angularv3App.movimiento.usuario">Usuario</label>
+          <select
+            class="form-control"
+            id="field_usuario"
+            data-cy="usuario"
+            name="usuario"
+            formControlName="usuario"
+            [compareWith]="compareUser"
+          >
+            <option [ngValue]="null"></option>
+            @for (userOption of usersSharedCollection; track $index) {
+              <option [ngValue]="userOption">{{ userOption.login }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_categoria" jhiTranslate="angularv3App.movimiento.categoria">Categoria</label>
+          <select
+            class="form-control"
+            id="field_categoria"
+            data-cy="categoria"
+            name="categoria"
+            formControlName="categoria"
+            [compareWith]="compareCategoria"
+          >
+            <option [ngValue]="null"></option>
+            @for (categoriaOption of categoriasSharedCollection; track $index) {
+              <option [ngValue]="categoriaOption">{{ categoriaOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_cuenta" jhiTranslate="angularv3App.movimiento.cuenta">Cuenta</label>
+          <select
+            class="form-control"
+            id="field_cuenta"
+            data-cy="cuenta"
+            name="cuenta"
+            formControlName="cuenta"
+            [compareWith]="compareCuenta"
+          >
+            <option [ngValue]="null"></option>
+            @for (cuentaOption of cuentasSharedCollection; track $index) {
+              <option [ngValue]="cuentaOption">{{ cuentaOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,255 @@
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">
+            <i class="fab fa-whatsapp me-2"></i>
+            Prueba de Webhook WhatsApp
+          </h2>
+          <small class="d-block mt-2">Simula mensajes desde WhatsApp para probar la integración</small>
+        </div>
+
+        <div class="card-body">
+          <!-- Alertas de estado -->
+          <div *ngIf="exito" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ exito }}
+            <button type="button" class="btn-close" (click)="exito = null"></button>
+          </div>
+
+          <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" (click)="error = null"></button>
+          </div>
+
+          <!-- Formulario de envío -->
+          <form [formGroup]="formulario" (ngSubmit)="enviarMensajeTest()" class="mb-4">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="numeroTelefonico" class="form-label fw-bold">Número Telefónico</label>
+                <input
+                  type="text"
+                  id="numeroTelefonico"
+                  class="form-control"
+                  formControlName="numeroTelefonico"
+                  placeholder="+34912345678"
+                  [class.is-invalid]="formulario.get('numeroTelefonico')?.invalid && formulario.get('numeroTelefonico')?.touched"
+                />
+                <small class="form-text text-muted">
+                  Formato: +[país][número] o [número]. Mínimo 10 dígitos.
+                </small>
+                <div class="invalid-feedback d-block" *ngIf="formulario.get('numeroTelefonico')?.invalid && formulario.get('numeroTelefonico')?.touched">
+                  Número telefónico inválido
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="mensaje" class="form-label fw-bold">Mensaje</label>
+                <textarea
+                  id="mensaje"
+                  class="form-control"
+                  formControlName="mensaje"
+                  rows="3"
+                  placeholder="GASTO 25.50 Alimentación &quot;Cuenta Principal&quot;"
+                  [class.is-invalid]="formulario.get('mensaje')?.invalid && formulario.get('mensaje')?.touched"
+                ></textarea>
+                <div class="invalid-feedback d-block" *ngIf="formulario.get('mensaje')?.invalid && formulario.get('mensaje')?.touched">
+                  El mensaje es requerido
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="cargando || !formulario.valid">
+                <span *ngIf="!cargando">
+                  <i class="fas fa-paper-plane me-2"></i>
+                  Enviar Mensaje de Prueba
+                </span>
+                <span *ngIf="cargando">
+                  <i class="fas fa-spinner fa-spin me-2"></i>
+                  Enviando...
+                </span>
+              </button>
+
+              <button type="button" class="btn btn-secondary" (click)="limpiar()" [disabled]="cargando">
+                <i class="fas fa-trash me-2"></i>
+                Limpiar Resultados
+              </button>
+            </div>
+          </form>
+
+          <!-- Guía de formatos -->
+          <div class="alert alert-info mb-4">
+            <h5 class="mb-3">
+              <i class="fas fa-lightbulb me-2"></i>
+              Formatos Válidos de Mensajes
+            </h5>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <strong>Formato básico:</strong>
+                  <code>GASTO 25.50 Alimentación</code>
+                </div>
+
+                <div class="mb-3">
+                  <strong>Con cuenta:</strong>
+                  <code>GASTO 25.50 Alimentación "Cuenta Principal"</code>
+                </div>
+
+                <div class="mb-3">
+                  <strong>Con descripción:</strong>
+                  <code>GASTO 15 Transporte Taxi al trabajo</code>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <strong>Ingreso:</strong>
+                  <code>INGRESO 500 Freelance</code>
+                </div>
+
+                <div class="mb-3">
+                  <strong>Con comillas:</strong>
+                  <code>GASTO 9.99 Entretenimiento "Netflix Premium"</code>
+                </div>
+
+                <div class="mb-3">
+                  <strong>Salario:</strong>
+                  <code>INGRESO 3000 Salario Pago mensual</code>
+                </div>
+              </div>
+            </div>
+
+            <hr />
+
+            <h6 class="mb-3">Plantillas rápidas:</h6>
+            <div class="d-flex flex-wrap gap-2">
+              <button *ngFor="let fmt of mensajesFormatoValidos" type="button" class="btn btn-sm btn-outline-info" (click)="usarFormato(fmt.valor)">
+                {{ fmt.tipo }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de detalles -->
+    <div class="col-md-4">
+      <div class="card shadow-sm border-success">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Instrucciones de Prueba
+          </h5>
+        </div>
+        <div class="card-body">
+          <h6>Paso a paso:</h6>
+          <ol class="small">
+            <li class="mb-2">
+              <strong>Ingresa un número telefónico</strong>
+              <br />
+              <span class="text-muted">Debe estar registrado en tu usuario</span>
+            </li>
+            <li class="mb-2">
+              <strong>Escribe un mensaje válido</strong>
+              <br />
+              <span class="text-muted">Usa los formatos proporcionados</span>
+            </li>
+            <li class="mb-2">
+              <strong>Haz clic en "Enviar"</strong>
+              <br />
+              <span class="text-muted">El mensaje se procesará automáticamente</span>
+            </li>
+            <li class="mb-2">
+              <strong>Verifica el resultado</strong>
+              <br />
+              <span class="text-muted">Revisa el estado y la respuesta del bot</span>
+            </li>
+          </ol>
+
+          <hr />
+
+          <h6>Estados posibles:</h6>
+          <div class="mb-2">
+            <span class="badge bg-success">PROCESADO</span>
+            <small>Movimiento creado exitosamente</small>
+          </div>
+          <div class="mb-2">
+            <span class="badge bg-danger">ERROR</span>
+            <small>Error en el procesamiento (datos inválidos)</small>
+          </div>
+          <div class="mb-2">
+            <span class="badge bg-warning">PENDIENTE</span>
+            <small>Esperando procesamiento</small>
+          </div>
+          <div class="mb-2">
+            <span class="badge bg-secondary">DESCARTADO</span>
+            <small>Mensaje rechazado</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial de mensajes -->
+  <div class="row mt-4" *ngIf="resultados.length > 0">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-history me-2"></i>
+            Historial de Pruebas ({{ resultados.length }})
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Estado</th>
+                  <th>Tipo</th>
+                  <th>Monto</th>
+                  <th>Categoría</th>
+                  <th>Cuenta</th>
+                  <th>Descripción</th>
+                  <th>Respuesta del Bot</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let resultado of resultados" [ngClass]="{ 'table-success': resultado.estado === 'PROCESADO', 'table-danger': resultado.estado === 'ERROR', 'table-warning': resultado.estado === 'PENDIENTE' }">
+                  <td>
+                    <span [ngClass]="obtenerClaseEstado(resultado.estado)" class="badge">
+                      {{ resultado.estado }}
+                    </span>
+                  </td>
+                  <td>{{ resultado.tipoMovimiento || '-' }}</td>
+                  <td>
+                    <strong *ngIf="resultado.monto">{{ resultado.monto | currency }}</strong>
+                    <span *ngIf="!resultado.monto" class="text-muted">-</span>
+                  </td>
+                  <td>{{ resultado.categoria || '-' }}</td>
+                  <td>{{ resultado.cuenta || '-' }}</td>
+                  <td>
+                    <small>{{ resultado.descripcion || '-' }}</small>
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ resultado.respuestaBot || '-' }}</small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje vacío -->
+  <div class="row mt-4" *ngIf="resultados.length === 0 && !cargando">
+    <div class="col-12 text-center text-muted py-5">
+      <i class="fas fa-inbox fa-3x mb-3 d-block opacity-50"></i>
+      <p>No hay resultados de pruebas aún. Envía un mensaje para comenzar.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<div>
+  <h2 id="page-heading" data-cy="CategoriaHeading">
+    <span jhiTranslate="angularv3App.categoria.home.title">Categorias</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span jhiTranslate="angularv3App.categoria.home.refreshListLabel">Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-categoria"
+        [routerLink]="['/categoria/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="angularv3App.categoria.home.createLabel">Create a new Categoria</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  @if (categorias().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span jhiTranslate="angularv3App.categoria.home.notFound">No Categorias found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="nombre">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.categoria.nombre">Nombre</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="tipo">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.categoria.tipo">Tipo</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="color">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.categoria.color">Color</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuario.login">
+              <div class="d-flex">
+                <span jhiTranslate="angularv3App.categoria.usuario">Usuario</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (categoria of categorias(); track trackId(categoria)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/categoria', categoria.id, 'view']">{{ categoria.id }}</a>
+              </td>
+              <td>{{ categoria.nombre }}</td>
+              <td [jhiTranslate]="'angularv3App.TipoCategoria.' + (categoria.tipo ?? 'null')">
+                {{ { null: '', GASTO: 'GASTO', INGRESO: 'INGRESO' }[categoria.tipo ?? 'null'] }}
+              </td>
+              <td>{{ categoria.color }}</td>
+              <td>
+                {{ categoria.usuario?.login }}
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a [routerLink]="['/categoria', categoria.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                  </a>
+
+                  <a [routerLink]="['/categoria', categoria.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(categoria)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

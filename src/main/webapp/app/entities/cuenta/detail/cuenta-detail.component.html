@@ -1,0 +1,46 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (cuenta(); as cuentaRef) {
+      <div>
+        <h2 data-cy="cuentaDetailsHeading"><span jhiTranslate="angularv3App.cuenta.detail.title">Cuenta</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ cuentaRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.cuenta.nombre">Nombre</span></dt>
+          <dd>
+            <span>{{ cuentaRef.nombre }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.cuenta.saldoInicial">Saldo Inicial</span></dt>
+          <dd>
+            <span>{{ cuentaRef.saldoInicial }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.cuenta.descripcion">Descripcion</span></dt>
+          <dd>
+            <span>{{ cuentaRef.descripcion }}</span>
+          </dd>
+          <dt><span jhiTranslate="angularv3App.cuenta.usuario">Usuario</span></dt>
+          <dd>
+            <span>{{ cuentaRef.usuario?.login }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/cuenta', cuentaRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

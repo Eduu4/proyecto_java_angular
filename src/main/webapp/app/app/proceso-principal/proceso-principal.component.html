@@ -1,0 +1,240 @@
+<div class="proceso-principal-container">
+  <!-- Header con título -->
+  <div class="header-section">
+    <h1>
+      <fa-icon [icon]="faChartLine"></fa-icon>
+      Gestión de Movimientos Financieros
+    </h1>
+    <p class="subtitle">Registra, edita y controla tus ingresos y gastos</p>
+  </div>
+
+  <!-- Resumen Financiero (Cards) -->
+  <div class="resumen-section">
+    <div class="card resumen-card saldo-total">
+      <div class="card-icon">
+        <fa-icon [icon]="faWallet"></fa-icon>
+      </div>
+      <div class="card-content">
+        <h3>Saldo Total</h3>
+        <p class="monto">${{ resumen.saldoTotal | number: '1.2-2' }}</p>
+      </div>
+    </div>
+
+    <div class="card resumen-card ingresos">
+      <div class="card-icon">
+        <fa-icon [icon]="faArrowUpLong"></fa-icon>
+      </div>
+      <div class="card-content">
+        <h3>Total Ingresos</h3>
+        <p class="monto">${{ resumen.totalIngresos | number: '1.2-2' }}</p>
+      </div>
+    </div>
+
+    <div class="card resumen-card gastos">
+      <div class="card-icon">
+        <fa-icon [icon]="faArrowDownLong"></fa-icon>
+      </div>
+      <div class="card-content">
+        <h3>Total Gastos</h3>
+        <p class="monto">${{ resumen.totalGastos | number: '1.2-2' }}</p>
+      </div>
+    </div>
+
+    <div class="card resumen-card balance">
+      <div class="card-icon">
+        <fa-icon [icon]="faChartLine"></fa-icon>
+      </div>
+      <div class="card-content">
+        <h3>Balance Neto</h3>
+        <p class="monto" [class.negativo]="resumen.balanceNeto < 0">
+          {{ resumen.balanceNeto >= 0 ? '+' : '' }}${{ resumen.balanceNeto | number: '1.2-2' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="acciones-section">
+    <button class="btn btn-primary" (click)="abrirFormulario()">
+      <fa-icon [icon]="faPlus"></fa-icon>
+      Nuevo Movimiento
+    </button>
+    <button class="btn btn-secondary" (click)="showFiltros = !showFiltros">
+      <fa-icon [icon]="faChartLine"></fa-icon>
+      Filtros
+    </button>
+  </div>
+
+  <!-- Sección de Filtros (colapsable) -->
+  <div class="filtros-section" *ngIf="showFiltros" [@slideDown]>
+    <div class="filtro-grupo">
+      <label>Tipo de Movimiento:</label>
+      <div class="filtro-opciones">
+        <button
+          class="filtro-btn"
+          [class.active]="tipoMovimientoSeleccionado === 'INGRESO'"
+          (click)="cambiarTipo('INGRESO')"
+        >
+          <fa-icon [icon]="faArrowUpLong"></fa-icon>
+          Ingresos
+        </button>
+        <button
+          class="filtro-btn"
+          [class.active]="tipoMovimientoSeleccionado === 'GASTO'"
+          (click)="cambiarTipo('GASTO')"
+        >
+          <fa-icon [icon]="faArrowDownLong"></fa-icon>
+          Gastos
+        </button>
+        <button class="filtro-btn" [class.active]="tipoMovimientoSeleccionado === ''" (click)="tipoMovimientoSeleccionado = ''">
+          Todos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Movimientos -->
+  <div class="movimientos-section">
+    <h2>Historial de Movimientos</h2>
+
+    <div class="tabla-responsive">
+      <table class="tabla-movimientos">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Monto</th>
+            <th>Categoría</th>
+            <th>Cuenta</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let mov of movimientos" [class]="obtenerClaseMovimiento(mov.tipo)">
+            <td class="tipo-cell">
+              <span class="badge" [class]="mov.tipo === 'INGRESO' ? 'badge-success' : 'badge-danger'">
+                <fa-icon [icon]="obtenerIconoMovimiento(mov.tipo)"></fa-icon>
+                {{ mov.tipo }}
+              </span>
+            </td>
+            <td class="monto-cell">
+              <strong>${{ mov.monto | number: '1.2-2' }}</strong>
+            </td>
+            <td class="categoria-cell">{{ mov.categoria }}</td>
+            <td class="cuenta-cell">{{ mov.cuenta }}</td>
+            <td class="fecha-cell">{{ mov.fecha }}</td>
+            <td class="descripcion-cell">{{ mov.descripcion }}</td>
+            <td class="acciones-cell">
+              <button class="btn-icon btn-edit" (click)="abrirFormulario(mov)" title="Editar">
+                <fa-icon [icon]="faEdit"></fa-icon>
+              </button>
+              <button class="btn-icon btn-delete" (click)="eliminarMovimiento(mov.id)" title="Eliminar">
+                <fa-icon [icon]="faTrash"></fa-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="movimientos.length === 0" class="mensaje-vacio">
+      <p>No hay movimientos registrados. ¡Crea uno nuevo!</p>
+    </div>
+  </div>
+
+  <!-- Modal - Formulario de Movimiento -->
+  <div class="modal-overlay" *ngIf="showFormMovimiento" (click)="cerrarFormulario()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ movimientoEnEdicion ? 'Editar Movimiento' : 'Nuevo Movimiento' }}</h2>
+        <button class="btn-close" (click)="cerrarFormulario()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Selección de Tipo -->
+        <div class="form-group">
+          <label>Tipo de Movimiento *</label>
+          <div class="tipo-selector">
+            <button
+              class="tipo-btn"
+              [class.active]="formulario.tipo === 'INGRESO'"
+              (click)="formulario.tipo = 'INGRESO'"
+            >
+              <fa-icon [icon]="faArrowUpLong"></fa-icon>
+              Ingreso
+            </button>
+            <button
+              class="tipo-btn"
+              [class.active]="formulario.tipo === 'GASTO'"
+              (click)="formulario.tipo = 'GASTO'"
+            >
+              <fa-icon [icon]="faArrowDownLong"></fa-icon>
+              Gasto
+            </button>
+          </div>
+        </div>
+
+        <!-- Monto -->
+        <div class="form-group">
+          <label for="monto">Monto *</label>
+          <div class="input-prefix">
+            <span class="prefix">$</span>
+            <input
+              id="monto"
+              type="number"
+              [(ngModel)]="formulario.monto"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <!-- Categoría -->
+        <div class="form-group">
+          <label for="categoria">Categoría *</label>
+          <select id="categoria" [(ngModel)]="formulario.categoria" class="form-control">
+            <option value="" disabled>Selecciona una categoría</option>
+            <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Cuenta -->
+        <div class="form-group">
+          <label for="cuenta">Cuenta *</label>
+          <select id="cuenta" [(ngModel)]="formulario.cuenta" class="form-control">
+            <option value="" disabled>Selecciona una cuenta</option>
+            <option *ngFor="let cuenta of cuentas" [value]="cuenta">{{ cuenta }}</option>
+          </select>
+        </div>
+
+        <!-- Fecha -->
+        <div class="form-group">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="date" [(ngModel)]="formulario.fecha" class="form-control" />
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label for="descripcion">Descripción</label>
+          <textarea
+            id="descripcion"
+            [(ngModel)]="formulario.descripcion"
+            placeholder="Ingresa una descripción (opcional)"
+            rows="3"
+            class="form-control"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarFormulario()">Cancelar</button>
+        <button class="btn btn-primary" (click)="guardarMovimiento()">
+          {{ movimientoEnEdicion ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

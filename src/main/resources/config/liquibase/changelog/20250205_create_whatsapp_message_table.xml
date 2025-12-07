@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20250205_create_whatsapp_message_table" author="jhipster">
+        <createTable tableName="whatsapp_message">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="mensaje_original" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tipo_movimiento" type="varchar(10)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="monto" type="decimal(21,2)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="categoria" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="cuenta" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="descripcion" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="estado" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="numero_telefonico" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_recepcion" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_procesamiento" type="datetime">
+                <constraints nullable="true"/>
+            </column>
+            <column name="respuesta_bot" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="error_mensaje" type="varchar(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="movimiento_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="whatsapp_message"
+                                 constraintName="fk_whatsapp_message_user"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"
+                                 onDelete="RESTRICT"
+                                 onUpdate="RESTRICT"/>
+
+        <addForeignKeyConstraint baseColumnNames="movimiento_id"
+                                 baseTableName="whatsapp_message"
+                                 constraintName="fk_whatsapp_message_movimiento"
+                                 referencedColumnNames="id"
+                                 referencedTableName="movimiento"
+                                 onDelete="RESTRICT"
+                                 onUpdate="RESTRICT"/>
+
+        <createIndex indexName="idx_whatsapp_message_user_id" tableName="whatsapp_message">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_whatsapp_message_numero_telefonico" tableName="whatsapp_message">
+            <column name="numero_telefonico"/>
+        </createIndex>
+
+        <createIndex indexName="idx_whatsapp_message_estado" tableName="whatsapp_message">
+            <column name="estado"/>
+        </createIndex>
+
+        <createIndex indexName="idx_whatsapp_message_fecha_recepcion" tableName="whatsapp_message">
+            <column name="fecha_recepcion"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,32 @@
+{
+  "angularv3App": {
+    "movimiento": {
+      "home": {
+        "title": "Movimientos",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Movimiento",
+        "createOrEditLabel": "Create or edit a Movimiento",
+        "notFound": "No Movimientos found"
+      },
+      "created": "A new Movimiento is created with identifier {{ param }}",
+      "updated": "A Movimiento is updated with identifier {{ param }}",
+      "deleted": "A Movimiento is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Movimiento {{ id }}?"
+      },
+      "detail": {
+        "title": "Movimiento"
+      },
+      "id": "ID",
+      "tipo": "Tipo",
+      "monto": "Monto",
+      "fechaMovimiento": "Fecha Movimiento",
+      "fechaRegistro": "Fecha Registro",
+      "fechaActualizacion": "Fecha Actualizacion",
+      "descripcion": "Descripcion",
+      "usuario": "Usuario",
+      "categoria": "Categoria",
+      "cuenta": "Cuenta"
+    }
+  }
+}

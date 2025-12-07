@@ -1,0 +1,56 @@
+enum TipoCategoria {
+  GASTO,
+  INGRESO
+}
+
+enum TipoMovimiento {
+  GASTO,
+  INGRESO
+}
+
+enum PeriodoPresupuesto {
+  SEMANAL,
+  MENSUAL
+}
+
+entity Categoria {
+  nombre String required,
+  tipo TipoCategoria required,
+  color String
+}
+
+entity Cuenta {
+  nombre String required,
+  saldoInicial BigDecimal required,
+  descripcion String
+}
+
+entity Movimiento {
+  tipo TipoMovimiento required,
+  monto BigDecimal required,
+  fechaMovimiento ZonedDateTime required,
+  fechaRegistro ZonedDateTime required,
+  fechaActualizacion ZonedDateTime,
+  descripcion String
+}
+
+entity Presupuesto {
+  monto BigDecimal required,
+  periodo PeriodoPresupuesto required,
+  fechaInicio LocalDate required,
+  fechaFin LocalDate required
+}
+
+relationship ManyToOne {
+  Categoria{usuario(login)} to User with builtInEntity
+  Cuenta{usuario(login)} to User with builtInEntity
+  Movimiento{usuario(login)} to User with builtInEntity
+  Presupuesto{usuario(login)} to User with builtInEntity
+
+  Movimiento{categoria} to Categoria
+  Movimiento{cuenta} to Cuenta
+  Presupuesto{categoria} to Categoria
+}
+
+service all with serviceClass
+dto all with mapstruct
