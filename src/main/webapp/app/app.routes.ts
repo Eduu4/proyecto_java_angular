@@ -15,6 +15,7 @@ const routes: Routes = [
     path: 'proceso-principal',
     loadComponent: () => import('./app/proceso-principal/proceso-principal.component').then(m => m.ProcesoPrincipalComponent),
     title: 'Gestión de Movimientos',
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'whatsapp-registro',

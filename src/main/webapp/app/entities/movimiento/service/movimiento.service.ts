@@ -8,6 +8,7 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { IMovimiento, NewMovimiento } from '../movimiento.model';
+import { IResumenFinanciero } from '../resumen-financiero.model';
 
 export type PartialUpdateMovimiento = Partial<IMovimiento> & Pick<IMovimiento, 'id'>;
 
@@ -69,6 +70,10 @@ export class MovimientoService {
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+
+  resumen(): Observable<IResumenFinanciero> {
+    return this.http.get<IResumenFinanciero>(`${this.resourceUrl}/resumen`);
   }
 
   getMovimientoIdentifier(movimiento: Pick<IMovimiento, 'id'>): number {

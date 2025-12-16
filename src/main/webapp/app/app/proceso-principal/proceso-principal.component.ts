@@ -1,8 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faPlus, faEdit, faTrash, faChartLine, faWallet, faArrowUpLong, faArrowDownLong } from '@fortawesome/free-solid-svg-icons';
+import { AccountService } from 'app/core/auth/account.service';
+import { StateStorageService } from 'app/core/auth/state-storage.service';
+import { Router } from '@angular/router';
+import { MovimientoService } from 'app/entities/movimiento/service/movimiento.service';
+import { IMovimiento, NewMovimiento } from 'app/entities/movimiento/movimiento.model';
+import { IResumenFinanciero } from 'app/entities/movimiento/resumen-financiero.model';
+import dayjs from 'dayjs/esm';
 
 interface Movimiento {
   id: number;
@@ -44,44 +51,7 @@ export class ProcesoPrincipalComponent implements OnInit {
   movimientoEnEdicion: Movimiento | null = null;
 
   // Datos de prueba (sin backend)
-  movimientos: Movimiento[] = [
-    {
-      id: 1,
-      tipo: 'INGRESO',
-      monto: 2500,
-      categoria: 'Salario',
-      cuenta: 'Cuenta Principal',
-      fecha: '2025-12-01',
-      descripcion: 'Pago mensual',
-    },
-    {
-      id: 2,
-      tipo: 'GASTO',
-      monto: 150,
-      categoria: 'Servicios',
-      cuenta: 'Cuenta Principal',
-      fecha: '2025-12-02',
-      descripcion: 'Pago de luz',
-    },
-    {
-      id: 3,
-      tipo: 'GASTO',
-      monto: 80,
-      categoria: 'Alimentación',
-      cuenta: 'Cuenta Principal',
-      fecha: '2025-12-02',
-      descripcion: 'Compras en supermercado',
-    },
-    {
-      id: 4,
-      tipo: 'INGRESO',
-      monto: 500,
-      categoria: 'Otros Ingresos',
-      cuenta: 'Cuenta Principal',
-      fecha: '2025-12-03',
-      descripcion: 'Venta online',
-    },
-  ];
+  movimientos: Movimiento[] = [];
 
   categorias = ['Salario', 'Servicios', 'Alimentación', 'Transporte', 'Otros Ingresos', 'Entretenimiento'];
   cuentas = ['Cuenta Principal', 'Ahorros', 'Tarjeta de Crédito'];
@@ -103,8 +73,51 @@ export class ProcesoPrincipalComponent implements OnInit {
     balanceNeto: 0,
   };
 
+  // services
+  private readonly movimientoService = inject(MovimientoService);
+  private readonly accountService = inject(AccountService);
+  private readonly stateStorageService = inject(StateStorageService);
+  private readonly router = inject(Router);
+
   ngOnInit(): void {
-    this.calcularResumen();
+    // Ensure only authenticated users can use this component (double check besides route guard)
+    this.accountService.identity().subscribe(account => {
+      if (!account) {
+        // store intended url and redirect to login
+        this.stateStorageService.storeUrl('/proceso-principal');
+        this.router.navigate(['/login']);
+        return;
+      }
+      // fetch real data from backend
+      this.loadDatos();
+    });
+  }
+
+  loadDatos(): void {
+    // fetch list
+    this.movimientoService.query({ sort: 'id,desc' }).subscribe(res => {
+      const body = res.body ?? [];
+      this.movimientos = body.map(m => ({
+        id: m.id!,
+        tipo: m.tipo as 'INGRESO' | 'GASTO',
+        monto: Number(m.monto ?? 0),
+        categoria: (m.categoria as any)?.nombre ?? m.descripcion ?? '',
+        cuenta: (m.cuenta as any)?.nombre ?? '',
+        fecha: m.fechaMovimiento?.format('YYYY-MM-DD') ?? '',
+        descripcion: m.descripcion ?? '',
+      }));
+      this.calcularResumen();
+    });
+
+    // fetch resumen
+    this.movimientoService.resumen().subscribe((r: IResumenFinanciero) => {
+      this.resumen = {
+        saldoTotal: this.resumen.saldoTotal,
+        totalIngresos: r.totalIngresos,
+        totalGastos: r.totalGastos,
+        balanceNeto: r.balance,
+      };
+    });
   }
 
   calcularResumen(): void {
@@ -130,7 +143,7 @@ export class ProcesoPrincipalComponent implements OnInit {
   abrirFormulario(movimiento?: Movimiento): void {
     if (movimiento) {
       this.movimientoEnEdicion = movimiento;
-      this.formulario = { 
+      this.formulario = {
         tipo: movimiento.tipo,
         monto: movimiento.monto.toString(),
         categoria: movimiento.categoria,
@@ -167,29 +180,75 @@ export class ProcesoPrincipalComponent implements OnInit {
       alert('Por favor completa todos los campos requeridos');
       return;
     }
+    // Build the payload for the backend
+    const payloadBase: Partial<IMovimiento> = {
+      tipo: this.formulario.tipo as any,
+      monto: parseFloat(this.formulario.monto as any),
+      fechaMovimiento: dayjs(this.formulario.fecha),
+      // backend requires fechaRegistro (@NotNull on DTO)
+      fechaRegistro: dayjs(),
+      descripcion: this.formulario.descripcion || undefined,
+    };
 
     if (this.movimientoEnEdicion) {
-      // Editar movimiento existente
-      const index = this.movimientos.findIndex(m => m.id === this.movimientoEnEdicion!.id);
-      if (index > -1) {
-        this.movimientos[index] = {
-          ...this.formulario,
-          id: this.movimientoEnEdicion.id,
-          monto: parseFloat(this.formulario.monto as any),
-        } as Movimiento;
-      }
-    } else {
-      // Crear nuevo movimiento
-      const nuevoMovimiento: Movimiento = {
-        id: Math.max(...this.movimientos.map(m => m.id), 0) + 1,
-        ...this.formulario,
-        monto: parseFloat(this.formulario.monto as any),
-      } as Movimiento;
-      this.movimientos.unshift(nuevoMovimiento);
-    }
+      // Update existing movimiento via backend
+      const movimientoToUpdate: IMovimiento = {
+        id: this.movimientoEnEdicion.id,
+        ...payloadBase,
+      } as IMovimiento;
 
-    this.calcularResumen();
-    this.cerrarFormulario();
+      this.movimientoService.update(movimientoToUpdate).subscribe({
+        next: res => {
+          const m = res.body!;
+          // update local cache
+          const index = this.movimientos.findIndex(x => x.id === m.id);
+          const mapped: Movimiento = {
+            id: m.id!,
+            tipo: (m.tipo as any) || 'GASTO',
+            monto: Number(m.monto ?? 0),
+            categoria: (m.categoria as any)?.nombre ?? '',
+            cuenta: (m.cuenta as any)?.nombre ?? '',
+            fecha: m.fechaMovimiento?.format('YYYY-MM-DD') ?? '',
+            descripcion: m.descripcion ?? '',
+          };
+          if (index > -1) {
+            this.movimientos[index] = mapped;
+          }
+          this.calcularResumen();
+          this.cerrarFormulario();
+        },
+        error: () => {
+          alert('Error al actualizar el movimiento');
+        },
+      });
+    } else {
+      // Create new movimiento via backend
+      const newMovimiento: NewMovimiento = {
+        id: null,
+        ...payloadBase,
+      } as NewMovimiento;
+
+      this.movimientoService.create(newMovimiento).subscribe({
+        next: res => {
+          const m = res.body!;
+          const mapped: Movimiento = {
+            id: m.id!,
+            tipo: (m.tipo as any) || 'GASTO',
+            monto: Number(m.monto ?? 0),
+            categoria: (m.categoria as any)?.nombre ?? '',
+            cuenta: (m.cuenta as any)?.nombre ?? '',
+            fecha: m.fechaMovimiento?.format('YYYY-MM-DD') ?? '',
+            descripcion: m.descripcion ?? '',
+          };
+          this.movimientos.unshift(mapped);
+          this.calcularResumen();
+          this.cerrarFormulario();
+        },
+        error: () => {
+          alert('Error al crear el movimiento');
+        },
+      });
+    }
   }
 
   eliminarMovimiento(id: number): void {

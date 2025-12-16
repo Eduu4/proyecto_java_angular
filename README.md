@@ -1,11 +1,11 @@
 Proyecto generado con JHipster que combina un backend Spring Boot (Java 17 + Maven) y un frontend Angular.
 
-**Resumen rápido**
 - **Backend**: Spring Boot + Maven (carpeta: `src/main/java`)
 - **Frontend**: Angular (carpeta: `src/main/webapp`)
 - **Bases de datos**: PostgreSQL, Redis (configuración en `src/main/docker` y `docker-compose.yml`)
 
 **Prerequisitos**
+
 - **Java 17** instalado y `JAVA_HOME` configurado.
 - **Maven** (se puede usar el wrapper incluido `mvnw`).
 - **Node.js** y **npm** (para desarrollo frontend). Versiones recomendadas: Node 18+ / npm 9+.
@@ -126,6 +126,7 @@ Si necesita ayuda con este repositorio, abra un issue o contacte al mantenedor d
 Licencia
 
 Ver `LICENSE` si existe en el repositorio (si no, consulte al autor para añadirla).
+
 # angularv3
 
 This application was generated using JHipster 8.11.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v8.11.0](https://www.jhipster.tech/documentation-archive/v8.11.0).
@@ -398,12 +399,12 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [JHipster Homepage and latest documentation]: https://www.jhipster.tech
 [JHipster 8.11.0 archive]: https://www.jhipster.tech/documentation-archive/v8.11.0
 
-
 ## 🔌 Prueba de Webhook de WhatsApp
 
 Para probar la integración de WhatsApp, consulta [WHATSAPP_TESTING_GUIDE.md](./WHATSAPP_TESTING_GUIDE.md).
 
 **Inicio rápido:**
+
 ```powershell
 .\test-whatsapp-webhook.ps1 -Interactivo
 ```

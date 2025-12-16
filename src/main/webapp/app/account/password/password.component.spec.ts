@@ -1,6 +1,7 @@
-jest.mock('app/core/auth/account.service');
+// Note: use a local mock provider for AccountService instead of jest.mock
 
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync, resolveComponentResources } from '@angular/core/testing';
 import { HttpResponse, provideHttpClient } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
 import { of, throwError } from 'rxjs';
@@ -14,19 +15,26 @@ describe('PasswordComponent', () => {
   let comp: PasswordComponent;
   let fixture: ComponentFixture<PasswordComponent>;
   let service: PasswordService;
+  let TestPasswordComponent: any;
 
   beforeEach(waitForAsync(() => {
+    // Override the external template of the real PasswordComponent so tests
+    // don't need to resolve templateUrl/styleUrls. Then import the real
+    // standalone component into the TestBed.
+    TestBed.overrideComponent(PasswordComponent as any, { set: { template: '' } });
+
     TestBed.configureTestingModule({
       imports: [PasswordComponent],
-      providers: [FormBuilder, AccountService, provideHttpClient()],
-    })
-      .overrideTemplate(PasswordComponent, '')
-      .compileComponents();
+      providers: [FormBuilder, { provide: AccountService, useValue: {} }, provideHttpClient()],
+    }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PasswordComponent);
-    comp = fixture.componentInstance;
+    // Create the test host component (subclass) instance which inherits the
+    // behavior of PasswordComponent but uses an inline template.
+    const testFixture = TestBed.createComponent(TestPasswordComponent as any);
+    fixture = testFixture as ComponentFixture<PasswordComponent>;
+    comp = fixture.componentInstance as PasswordComponent;
     service = TestBed.inject(PasswordService);
   });
 

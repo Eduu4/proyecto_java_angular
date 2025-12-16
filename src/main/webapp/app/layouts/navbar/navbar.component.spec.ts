@@ -1,3 +1,38 @@
+jest.mock('app/core/auth/account.service');
+
+import { TestBed, waitForAsync } from '@angular/core/testing';
+import { signal } from '@angular/core';
+
+import NavbarComponent from './navbar.component';
+import { AccountService } from 'app/core/auth/account.service';
+
+describe('NavbarComponent', () => {
+  let comp: NavbarComponent;
+
+  beforeEach(waitForAsync(() => {
+    const mockAccountService = {
+      trackCurrentAccount: jest.fn(() => signal(null)),
+    } as Partial<AccountService> as AccountService;
+
+    TestBed.configureTestingModule({ imports: [NavbarComponent], providers: [{ provide: AccountService, useValue: mockAccountService }] })
+      .overrideTemplate(
+        NavbarComponent,
+        `<a class="nav-link" *ngIf="account() !== null" routerLink="/proceso-principal">Gestión de Movimientos</a>`,
+      ) // small test template
+      .compileComponents();
+  }));
+
+  beforeEach(() => {
+    const fixture = TestBed.createComponent(NavbarComponent);
+    comp = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should not show proceso-principal link when not authenticated', () => {
+    const el = document.querySelector('a[routerlink="/proceso-principal"], a[routerLink="/proceso-principal"]');
+    expect(el).toBeNull();
+  });
+});
 jest.mock('app/login/login.service');
 
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';

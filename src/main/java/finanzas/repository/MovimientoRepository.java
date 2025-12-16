@@ -1,17 +1,17 @@
 package finanzas.repository;
 
+import finanzas.domain.Movimiento;
+import finanzas.domain.enumeration.TipoMovimiento;
+import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import finanzas.domain.Movimiento;
 
 /**
  * Spring Data JPA repository for the Movimiento entity.
@@ -52,4 +52,7 @@ public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
     List<Movimiento> findByCuentaIdAndFechaMovimientoBetween(Long cuentaId, ZonedDateTime start, ZonedDateTime end);
 
     List<Movimiento> findByCategoriaIdAndFechaMovimientoBetween(Long categoriaId, ZonedDateTime start, ZonedDateTime end);
+
+    @Query("select sum(m.monto) from Movimiento m where m.tipo = :tipo")
+    Optional<BigDecimal> sumByTipo(@Param("tipo") TipoMovimiento tipo);
 }

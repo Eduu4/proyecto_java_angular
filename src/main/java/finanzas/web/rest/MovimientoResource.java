@@ -15,7 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
@@ -40,6 +49,27 @@ public class MovimientoResource {
     public MovimientoResource(MovimientoService movimientoService, MovimientoRepository movimientoRepository) {
         this.movimientoService = movimientoService;
         this.movimientoRepository = movimientoRepository;
+    }
+
+    /**
+     * {@code POST  /movimientos/registrar} : registrar nuevo movimiento (flujo de negocio simplificado).
+     */
+    @PostMapping("/registrar")
+    public ResponseEntity<finanzas.service.dto.MovimientoResponseDTO> registrarMovimiento(
+        @Valid @RequestBody finanzas.service.dto.MovimientoRequestDTO request
+    ) throws URISyntaxException {
+        LOG.debug("REST request to registrar Movimiento : {}", request);
+        finanzas.service.dto.MovimientoResponseDTO response = movimientoService.registrar(request);
+        return ResponseEntity.created(new URI("/api/movimientos/" + response.getId())).body(response);
+    }
+
+    /**
+     * {@code GET  /movimientos/resumen} : obtener resumen financiero (ingresos, gastos, balance).
+     */
+    @GetMapping("/resumen")
+    public ResponseEntity<finanzas.service.dto.ResumenFinancieroDTO> getResumen() {
+        finanzas.service.dto.ResumenFinancieroDTO resumen = movimientoService.obtenerResumen();
+        return ResponseEntity.ok(resumen);
     }
 
     /**

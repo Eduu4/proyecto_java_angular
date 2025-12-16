@@ -27,14 +27,16 @@
             </span>
           </a>
         </li>
-        <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-          <a class="nav-link" routerLink="/proceso-principal" (click)="collapseNavbar()">
-            <span>
-              <fa-icon icon="chart-line"></fa-icon>
-              <span>Gestión de Movimientos</span>
-            </span>
-          </a>
-        </li>
+        @if (account() !== null) {
+          <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link" routerLink="/proceso-principal" (click)="collapseNavbar()">
+              <span>
+                <fa-icon icon="chart-line"></fa-icon>
+                <span>Gestión de Movimientos</span>
+              </span>
+            </a>
+          </li>
+        }
         @if (account() && hasAnyAuthority(['ROLE_ADMIN'])) {
           <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
             <a class="nav-link" routerLink="/whatsapp-registro" (click)="collapseNavbar()">

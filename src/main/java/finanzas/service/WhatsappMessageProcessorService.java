@@ -6,14 +6,13 @@ import finanzas.domain.enumeration.TipoMovimiento;
 import finanzas.repository.CategoriaRepository;
 import finanzas.repository.CuentaRepository;
 import finanzas.repository.WhatsappMessageRepository;
-import finanzas.service.dto.MovimientoDTO;
 import finanzas.service.dto.CategoriaDTO;
 import finanzas.service.dto.CuentaDTO;
+import finanzas.service.dto.MovimientoDTO;
 import finanzas.service.dto.UserDTO;
 import finanzas.service.mapper.CategoriaMapper;
 import finanzas.service.mapper.CuentaMapper;
 import finanzas.service.mapper.UserMapper;
-
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -34,12 +33,13 @@ public class WhatsappMessageProcessorService {
 
     // Regex para parsear: "gasto|ingreso <monto> <categoria> [en <cuenta>] [descripcion...]"
     private static final Pattern MOVIMIENTO_PATTERN = Pattern.compile(
-        "^(gasto|ingreso)\\s+(\\d+(\\.\\d{1,2})?)\\s+([\\w\\s]+?)(?:\\s+en\\s+([\\w\\s]+?))?(?:\\s+(.+))?$",
+        "^(gasto|ingreso)\\s+(\\d+(\\.\\d{1,2})?)\\s+([\\w\\s]+?)(?:\\s+en\\s+([\\w\\s]+))?(?:\\s+(.+))?$",
         Pattern.CASE_INSENSITIVE
     );
 
     private final WhatsappMessageRepository whatsappMessageRepository;
     private final MovimientoService movimientoService;
+    private final finanzas.repository.MovimientoRepository movimientoRepository;
     private final CategoriaRepository categoriaRepository;
     private final CuentaRepository cuentaRepository;
     private final UserMapper userMapper;
@@ -49,6 +49,7 @@ public class WhatsappMessageProcessorService {
     public WhatsappMessageProcessorService(
         WhatsappMessageRepository whatsappMessageRepository,
         MovimientoService movimientoService,
+        finanzas.repository.MovimientoRepository movimientoRepository,
         CategoriaRepository categoriaRepository,
         CuentaRepository cuentaRepository,
         UserMapper userMapper,
@@ -57,6 +58,7 @@ public class WhatsappMessageProcessorService {
     ) {
         this.whatsappMessageRepository = whatsappMessageRepository;
         this.movimientoService = movimientoService;
+        this.movimientoRepository = movimientoRepository;
         this.categoriaRepository = categoriaRepository;
         this.cuentaRepository = cuentaRepository;
         this.userMapper = userMapper;
@@ -86,7 +88,9 @@ public class WhatsappMessageProcessorService {
             Matcher matcher = MOVIMIENTO_PATTERN.matcher(message.getMensajeOriginal().trim());
 
             if (!matcher.matches()) {
-                throw new IllegalArgumentException("El formato del mensaje no es válido. Usa: 'gasto/ingreso <monto> <categoría> [en <cuenta>] [descripción]'");
+                throw new IllegalArgumentException(
+                    "El formato del mensaje no es válido. Usa: 'gasto/ingreso <monto> <categoría> [en <cuenta>] [descripción]'"
+                );
             }
 
             TipoMovimiento tipo = matcher.group(1).equalsIgnoreCase("gasto") ? TipoMovimiento.GASTO : TipoMovimiento.INGRESO;
@@ -98,11 +102,10 @@ public class WhatsappMessageProcessorService {
             User user = message.getUsuario();
 
             // Buscar Categoria
-            Optional<Categoria> categoriaOpt = categoriaRepository.findByUsuarioAndNombreIgnoreCase(user, categoriaNombre);
-            if (categoriaOpt.isEmpty()) {
-                throw new IllegalArgumentException("La categoría '" + categoriaNombre + "' no fue encontrada.");
-            }
-            CategoriaDTO categoriaDTO = categoriaMapper.toDto(categoriaOpt.get());
+            Categoria categoria = categoriaRepository
+                .findByUsuarioAndNombreIgnoreCase(user, categoriaNombre)
+                .orElseThrow(() -> new IllegalArgumentException("La categoría '" + categoriaNombre + "' no fue encontrada."));
+            CategoriaDTO categoriaDTO = categoriaMapper.toDto(categoria);
 
             // Buscar Cuenta
             Optional<Cuenta> cuentaOpt;
@@ -119,13 +122,17 @@ public class WhatsappMessageProcessorService {
                 }
                 cuentaOpt = Optional.of(cuentas.get(0));
             }
-            CuentaDTO cuentaDTO = cuentaMapper.toDto(cuentaOpt.get());
+            Cuenta cuenta = cuentaOpt.orElseThrow(() -> new IllegalArgumentException("La cuenta '" + cuentaNombre + "' no fue encontrada.")
+            );
+            CuentaDTO cuentaDTO = cuentaMapper.toDto(cuenta);
 
             // Crear y guardar el Movimiento
             MovimientoDTO movimientoDTO = new MovimientoDTO();
             movimientoDTO.setTipo(tipo);
             movimientoDTO.setMonto(monto);
             movimientoDTO.setFechaMovimiento(message.getFechaRecepcion());
+            // fechaRegistro es obligatoria según DTO; establecerla al momento de procesar
+            movimientoDTO.setFechaRegistro(ZonedDateTime.now());
             movimientoDTO.setDescripcion(descripcion);
             movimientoDTO.setCategoria(categoriaDTO);
             movimientoDTO.setCuenta(cuentaDTO);
@@ -133,10 +140,18 @@ public class WhatsappMessageProcessorService {
 
             MovimientoDTO resultado = movimientoService.save(movimientoDTO);
 
+            // Associate the created Movimiento with the WhatsappMessage
+            if (resultado != null && resultado.getId() != null) {
+                finanzas.domain.Movimiento movimiento = movimientoRepository.findById(resultado.getId()).orElse(null);
+                if (movimiento != null) {
+                    message.setMovimientoAsociado(movimiento);
+                }
+            }
+
             message.setEstado(EstadoProcesamiento.COMPLETADO);
+            message.setFechaProcesamiento(ZonedDateTime.now());
             message.setRespuestaBot("Movimiento de " + monto + " en categoría " + categoriaDTO.getNombre() + " registrado exitosamente.");
             log.info("Successfully processed message ID: {}", message.getId());
-
         } catch (Exception e) {
             log.error("Error processing message ID: {}", message.getId(), e);
 

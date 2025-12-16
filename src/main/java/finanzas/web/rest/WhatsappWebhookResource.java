@@ -45,7 +45,7 @@ public class WhatsappWebhookResource {
             return ResponseEntity.ok().build();
         }
 
-        User user = userOptional.get();
+        User user = userOptional.orElseThrow();
         WhatsappMessage whatsappMessage = new WhatsappMessage();
         whatsappMessage.setMensajeOriginal(inboundMessage.getBody());
         whatsappMessage.setNumeroTelefonico(cleanPhoneNumber);
